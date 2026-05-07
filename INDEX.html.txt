@@ -1,135 +1,359 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mayank Grocery Store</title>
+import { useState } from 'react';
 
-<style>
-body {font-family: Arial; margin:0; background:#f4f4f4;}
-header {background:#2e7d32; color:white; padding:15px; text-align:center;}
-.search {padding:10px; text-align:center;}
-.search input {width:80%; padding:10px; border-radius:5px; border:1px solid #ccc;}
+export default function PandaHairSalonApp() {
+  const services = [
+    { name: 'Hair Cut', price: '₹299', time: '30 min' },
+    { name: 'Hair Spa', price: '₹799', time: '60 min' },
+    { name: 'Beard Styling', price: '₹199', time: '20 min' },
+    { name: 'Hair Coloring', price: '₹1499', time: '90 min' },
+  ];
 
-.container {display:flex; flex-wrap:wrap; justify-content:center;}
+  const [formData, setFormData] = useState({
+    name: '',
+    mobile: '',
+    service: '',
+    date: '',
+    time: '',
+  });
 
-.product {
-background:white;
-width:200px;
-margin:10px;
-padding:10px;
-border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
-text-align:center;
+  const [bookings, setBookings] = useState([]);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleBooking = (e) => {
+    e.preventDefault();
+
+    if (!formData.name || !formData.mobile || !formData.service) {
+      alert('Please fill all details');
+      return;
+    }
+
+    setBookings([...bookings, formData]);
+
+    alert('Appointment Booked Successfully ✅');
+
+    setFormData({
+      name: '',
+      mobile: '',
+      service: '',
+      date: '',
+      time: '',
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-900 text-white p-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-10">
+          <div>
+            <h1 className="text-5xl font-bold tracking-wide">
+              🐼 Panda Hair Style Salon
+            </h1>
+            <p className="text-gray-300 mt-2 text-lg">
+              Premium Hair & Grooming Booking App
+            </p>
+          </div>
+
+          <button className="mt-5 md:mt-0 bg-red-600 hover:bg-red-700 transition px-6 py-3 rounded-2xl shadow-xl text-lg font-semibold">
+            Book Appointment
+          </button>
+        </div>
+
+        {/* Hero Section */}
+        <div className="grid md:grid-cols-2 gap-8 items-center mb-14">
+          <div>
+            <h2 className="text-4xl font-bold leading-tight mb-4">
+              Get Your Perfect <span className="text-red-500">Hair Style</span>
+            </h2>
+            <p className="text-gray-300 text-lg mb-6">
+              Professional stylists, modern trends, premium salon experience.
+              Book instantly from your phone.
+            </p>
+
+            <div className="flex gap-4">
+              <button className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-2xl font-semibold shadow-lg">
+                Book Now
+              </button>
+
+              <button className="border border-white px-6 py-3 rounded-2xl hover:bg-white hover:text-black transition">
+                View Services
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <img
+              src="https://images.unsplash.com/photo-1517832606299-7ae9b720a186?q=80&w=1200&auto=format&fit=crop"
+              alt="Salon"
+              className="rounded-3xl shadow-2xl w-full h-[400px] object-cover"
+            />
+          </div>
+        </div>
+
+        {/* Services */}
+        <div className="mb-14">
+          <h2 className="text-3xl font-bold mb-8 text-center">
+            Our Services
+          </h2>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {services.map((service, index) => (
+              <div
+                key={index}
+                className="bg-white/10 backdrop-blur-lg p-6 rounded-3xl border border-white/10 hover:scale-105 transition"
+              >
+                <h3 className="text-2xl font-bold mb-3">{service.name}</h3>
+                <p className="text-gray-300">Time: {service.time}</p>
+                <p className="text-red-400 text-2xl font-bold mt-4">
+                  {service.price}
+                </p>
+
+                <button className="w-full mt-5 bg-red-600 hover:bg-red-700 py-3 rounded-2xl font-semibold">
+                  Book Service
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Booking Form */}
+        <div className="grid md:grid-cols-2 gap-10 items-center bg-white/10 p-8 rounded-3xl backdrop-blur-lg border border-white/10">
+          <div>
+            <h2 className="text-3xl font-bold mb-4">
+              Book Your Appointment
+            </h2>
+            <p className="text-gray-300">
+              Fill your details and reserve your salon slot instantly.
+            </p>
+          </div>
+
+          <form className="space-y-4" onSubmit={handleBooking}>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Your Name"
+              className="w-full p-4 rounded-2xl bg-black/40 border border-gray-700 focus:outline-none"
+            />
+
+            <input
+              type="tel"
+              name="mobile"
+              value={formData.mobile}
+              onChange={handleChange}
+              placeholder="Mobile Number"
+              className="w-full p-4 rounded-2xl bg-black/40 border border-gray-700 focus:outline-none"
+            />
+
+            <select
+              name="service"
+              value={formData.service}
+              onChange={handleChange}
+              className="w-full p-4 rounded-2xl bg-black/40 border border-gray-700 focus:outline-none"
+            >
+              <option>Select Service</option>
+              <option>Hair Cut</option>
+              <option>Hair Spa</option>
+              <option>Beard Styling</option>
+              <option>Hair Coloring</option>
+            </select>
+
+            <input
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              type="date"
+              className="w-full p-4 rounded-2xl bg-black/40 border border-gray-700 focus:outline-none"
+            />
+
+            <button className="w-full bg-red-600 hover:bg-red-700 py-4 rounded-2xl text-lg font-bold shadow-xl">
+              Confirm Booking
+            </button>
+          <input
+              type="time"
+              name="time"
+              value={formData.time}
+              onChange={handleChange}
+              className="w-full p-4 rounded-2xl bg-black/40 border border-gray-700 focus:outline-none"
+            />
+          </form>
+        </div>
+
+        {/* Admin Booking Panel */}
+        <div className="mt-14">
+          <h2 className="text-3xl font-bold mb-6 text-center">
+            Today's Bookings
+          </h2>
+
+          <div className="overflow-auto rounded-3xl border border-white/10 bg-white/10 backdrop-blur-lg">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-white/10 text-red-400">
+                  <th className="p-4">Customer</th>
+                  <th className="p-4">Mobile</th>
+                  <th className="p-4">Service</th>
+                  <th className="p-4">Date</th>
+                  <th className="p-4">Time</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {bookings.map((booking, index) => (
+                  <tr key={index} className="border-b border-white/10">
+                    <td className="p-4">{booking.name}</td>
+                    <td className="p-4">{booking.mobile}</td>
+                    <td className="p-4">{booking.service}</td>
+                    <td className="p-4">{booking.date}</td>
+                    <td className="p-4">{booking.time}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-14 border-t border-white/10 pt-6 text-gray-400">
+          © 2026 Panda Hair Style Salon • Designed by Bhikam Singh
+
+/*
+==============================
+🔥 REAL WORKING APP SETUP
+==============================
+
+1. Install Firebase
+npm install firebase
+
+2. Create Firebase Project
+https://firebase.google.com
+
+3. Create src/firebase.js
+
+---------------------------------
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+
+const firebaseConfig = {
+  apiKey: 'YOUR_API_KEY',
+  authDomain: 'YOUR_DOMAIN',
+  projectId: 'YOUR_PROJECT_ID',
+  storageBucket: 'YOUR_BUCKET',
+  messagingSenderId: 'YOUR_MSG_ID',
+  appId: 'YOUR_APP_ID'
+};
+
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
+---------------------------------
+
+4. Save Booking in Firebase
+
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from './firebase';
+
+Replace handleBooking function:
+
+const handleBooking = async (e) => {
+  e.preventDefault();
+
+  await addDoc(collection(db, 'bookings'), {
+    ...formData,
+    createdAt: new Date(),
+  });
+
+  alert('Booking Confirmed ✅');
+};
+
+==================================
+📧 EMAIL BOOKING SYSTEM
+==================================
+
+Install:
+npm install emailjs-com
+
+Website:
+https://www.emailjs.com
+
+Create account and connect Gmail.
+
+Send booking directly to your email.
+
+==================================
+📲 WHATSAPP BOOKING ALERT
+==================================
+
+Add button:
+
+const whatsappMessage = `Hello Panda Salon,%0A
+Name: ${formData.name}%0A
+Mobile: ${formData.mobile}%0A
+Service: ${formData.service}%0A
+Date: ${formData.date}%0A
+Time: ${formData.time}`;
+
+window.open(
+  `https://wa.me/91YOURNUMBER?text=${whatsappMessage}`,
+  '_blank'
+);
+
+==================================
+👑 ADMIN PANEL FEATURES
+==================================
+
+✅ View all bookings
+✅ Customer details
+✅ Mobile number
+✅ Appointment time
+✅ Service type
+✅ Delete booking
+✅ Approve booking
+✅ Daily reports
+
+==================================
+🚀 DEPLOY LIVE WEBSITE
+==================================
+
+1. Push project on GitHub
+2. Open https://vercel.com
+3. Import GitHub project
+4. Click DEPLOY
+
+Your salon app becomes live instantly.
+
+==================================
+📱 MAKE ANDROID APP
+==================================
+
+Use:
+https://www.webintoapp.com
+
+Paste live website URL.
+It converts your salon website into Android APK.
+
+==============================
+🔥 FINAL FEATURES
+==============================
+
+✅ Real Booking System
+✅ Firebase Database
+✅ WhatsApp Notifications
+✅ Email Notifications
+✅ Admin Dashboard
+✅ Mobile Responsive
+✅ Live Website
+✅ Android App Ready
+✅ Premium Modern Design
+
+*/
+        </div>
+      </div>
+    </div>
+  );
 }
-
-.product img {width:100%; height:150px; object-fit:cover;}
-
-button {
-background:#2e7d32;
-color:white;
-padding:8px;
-border:none;
-border-radius:5px;
-cursor:pointer;
-margin-top:5px;
-}
-
-.cart {
-position:fixed;
-bottom:10px;
-right:10px;
-background:#25D366;
-color:white;
-padding:15px;
-border-radius:50%;
-font-size:18px;
-cursor:pointer;
-}
-
-</style>
-</head>
-
-<body>
-
-<header>
-<h2>🛒 Mayank Grocery Store</h2>
-<p>Baragaon Sarmathura, Dholpur</p>
-</header>
-
-<div class="search">
-<input type="text" id="search" placeholder="Search product..." onkeyup="searchProduct()">
-</div>
-
-<div class="container" id="products">
-
-<div class="product" data-name="rice">
-<img src="https://via.placeholder.com/200">
-<h3>Rice</h3>
-<p>₹50/kg</p>
-<button onclick="addToCart('Rice ₹50/kg')">Add to Cart</button>
-</div>
-
-<div class="product" data-name="dal">
-<img src="https://via.placeholder.com/200">
-<h3>Dal</h3>
-<p>₹80/kg</p>
-<button onclick="addToCart('Dal ₹80/kg')">Add to Cart</button>
-</div>
-
-<div class="product" data-name="ghee">
-<img src="https://via.placeholder.com/200">
-<h3>Ghee</h3>
-<p>₹516/kg</p>
-<button onclick="addToCart('Ghee ₹516/kg')">Add to Cart</button>
-</div>
-
-<div class="product" data-name="oil">
-<img src="https://via.placeholder.com/200">
-<h3>Oil</h3>
-<p>₹50/kg</p>
-<button onclick="addToCart('Oil ₹50/kg')">Add to Cart</button>
-</div>
-
-</div>
-
-<div class="cart" onclick="sendWhatsApp()">🛒</div>
-
-<script>
-let cart = [];
-
-function addToCart(item){
-cart.push(item);
-alert(item + " added");
-}
-
-function sendWhatsApp(){
-if(cart.length == 0){
-alert("Cart empty");
-return;
-}
-
-let message = "Order:%0A";
-cart.forEach((item,i)=>{
-message += (i+1)+". "+item+"%0A";
-});
-
-window.open("https://wa.me/917733919000?text="+message);
-}
-
-function searchProduct(){
-let input = document.getElementById("search").value.toLowerCase();
-let products = document.getElementsByClassName("product");
-
-for(let i=0;i<products.length;i++){
-let name = products[i].getAttribute("data-name");
-if(name.includes(input)){
-products[i].style.display="block";
-}else{
-products[i].style.display="none";
-}
-}
-}
-</script>
-
-</body>
-</html>
