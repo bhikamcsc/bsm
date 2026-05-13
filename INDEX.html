@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Garment Job Work Mini ERP</title>
+<style>
+:root{
+  --navy:#17365d;--blue:#1f4e78;--soft:#eef5fb;--green:#e2f0d9;--yellow:#fff2cc;
+  --red:#f4cccc;--border:#c8d3df;--gray:#f2f4f7;--text:#1f2937;--orange:#fce4d6
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial, sans-serif;background:#f4f7fb;color:var(--text)}
+.hidden{display:none!important}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#17365d,#2f75b5)}
+.login-card{width:390px;background:#fff;border-radius:18px;padding:28px;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+.login-card h1{margin:0 0 8px;text-align:center;color:var(--navy);font-size:24px}
+.sub{text-align:center;color:#667085;margin-bottom:20px}
+label{font-weight:700;font-size:13px}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;margin:6px 0 12px;background:#fff}
+button{border:0;background:var(--blue);color:#fff;font-weight:700;border-radius:10px;padding:10px 14px;cursor:pointer}
+button.secondary{background:#64748b}
+button.danger{background:#b42318}
+button.good{background:#16803c}
+button:disabled{opacity:.45;cursor:not-allowed}
+.demo,.note{background:var(--yellow);padding:10px;border-radius:10px;font-size:13px;margin-top:12px;border:1px solid #ecd37a}
+header{background:var(--navy);color:white;padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
+header h2{margin:0;font-size:19px}
+.layout{display:flex;min-height:calc(100vh - 54px)}
+nav{width:245px;background:#fff;border-right:1px solid var(--border);padding:14px;overflow:auto}
+nav button{width:100%;margin-bottom:8px;text-align:left;background:#eef5fb;color:var(--navy);border:1px solid var(--border)}
+nav button.active{background:var(--blue);color:white}
+main{flex:1;padding:18px;overflow:auto}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:14px;margin-bottom:18px}
+.card{background:white;border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 3px 10px rgba(16,24,40,.04)}
+.card .k{font-size:13px;color:#667085}.card .v{font-size:24px;font-weight:800;color:var(--navy);margin-top:6px}
+.panel{background:white;border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:0 3px 10px rgba(16,24,40,.04)}
+.panel h3{margin:0 0 14px;color:var(--navy)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+table{width:100%;border-collapse:collapse;background:#fff}
+th,td{border:1px solid var(--border);padding:8px;font-size:13px;text-align:center}
+th{background:var(--blue);color:white;position:sticky;top:0;z-index:1}
+tr.over td{background:var(--red)}
+tr.complete td{background:var(--green)}
+tr.partial td{background:var(--yellow)}
+tr.pending td{background:#fff}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700}
+.badge.admin{background:#dbeafe;color:#17365d}.badge.user{background:#f2f4f7;color:#344054}
+.admin-only{outline:2px dashed #b42318}
+.actions{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.right{display:flex;gap:10px;align-items:center}
+.small{font-size:12px;color:#667085}
+@media(max-width:950px){.layout{display:block}nav{width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<section id="loginScreen" class="login-wrap">
+  <div class="login-card">
+    <h1>Garment Job Work ERP</h1>
+    <div class="sub">Secure login based mini software</div>
+    <label>User Name</label>
+    <input id="loginUser" placeholder="Admin / User1 / User2"/>
+    <label>Password</label>
+    <input id="loginPass" type="password" placeholder="Password"/>
+    <button style="width:100%" onclick="doLogin()">Login</button>
+    <div id="loginMsg" class="demo hidden"></div>
+    <div class="demo"><b>Demo Login:</b><br>Admin / 1234<br>User1 / 1111<br>User2 / 2222</div>
+  </div>
+</section>
+
+<section id="appScreen" class="hidden">
+<header>
+  <h2>Garment Job Work Mini ERP</h2>
+  <div class="right"><span id="who"></span><button class="secondary" onclick="logout()">Logout</button></div>
+</header>
+<div class="layout">
+<nav>
+  <button class="active" onclick="show('dashboard',this)">Dashboard</button>
+  <button onclick="show('jobbers',this)">Jobber Account</button>
+  <button onclick="show('styles',this)">Style Rate Master</button>
+  <button onclick="show('cutting',this)">Cutting</button>
+  <button onclick="show('stitching',this)">Job Work Stitching</button>
+  <button onclick="show('finishing',this)">Finishing</button>
+  <button onclick="show('reports',this)">Report Generate</button>
+  <button id="auditBtn" onclick="show('auditScreen',this)">Admin Audit</button>
+  <button onclick="exportBackup()">Export Backup</button>
+</nav>
+<main>
+  <section id="dashboard" class="screen"></section>
+  <section id="jobbers" class="screen hidden"></section>
+  <section id="styles" class="screen hidden"></section>
+  <section id="cutting" class="screen hidden"></section>
+  <section id="stitching" class="screen hidden"></section>
+  <section id="finishing" class="screen hidden"></section>
+  <section id="reports" class="screen hidden"></section>
+  <section id="auditScreen" class="screen hidden"></section>
+</main>
+</div>
+</section>
+
+<script>
+const USERS={Admin:{pass:"1234",role:"Admin"},User1:{pass:"1111",role:"User"},User2:{pass:"2222",role:"User"}};
+const sizes=["XS","S","M","L","XL","2XL","3XL"];
+let currentUser=null;
+let editState={module:null,index:null};
+
+const store={
+  get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},
+  set(k,v){localStorage.setItem(k,JSON.stringify(v))}
+};
+
+function seed(){
+  if(!localStorage.getItem("jobbers")) store.set("jobbers",[
+    {name:"Ramesh Tailor",mobile:"9999999999",work:"Stitching",address:"Local",active:"Yes",createdBy:"Admin"},
+    {name:"Suresh Finishing",mobile:"8888888888",work:"Finishing",address:"Local",active:"Yes",createdBy:"Admin"}
+  ]);
+  if(!localStorage.getItem("styles")) store.set("styles",[
+    {style:"ST-1001",buyer:"AMBRAEE",item:"Kurti",stitchRate:45,finishRate:10},
+    {style:"ST-1002",buyer:"AMBRAEE",item:"Dress",stitchRate:80,finishRate:15},
+    {style:"ST-1003",buyer:"AMBRAEE",item:"Co-ord Set",stitchRate:120,finishRate:20}
+  ]);
+  if(!localStorage.getItem("cutting")) store.set("cutting",[
+    {date:"2026-05-01",buyer:"AMBRAEE",style:"ST-1001",item:"Kurti",colour:"Black",XS:5,S:10,M:15,L:12,XL:8,"2XL":5,"3XL":2,remark:"",createdBy:"Admin"},
+    {date:"2026-05-01",buyer:"AMBRAEE",style:"ST-1001",item:"Kurti",colour:"Blue",XS:3,S:8,M:10,L:9,XL:6,"2XL":4,"3XL":1,remark:"",createdBy:"Admin"}
+  ]);
+  if(!localStorage.getItem("stitching")) store.set("stitching",[]);
+  if(!localStorage.getItem("finishing")) store.set("finishing",[]);
+  if(!localStorage.getItem("audit")) store.set("audit",[]);
+}
+seed();
+
+function isAdmin(){return currentUser?.role==="Admin"}
+function canModify(){return isAdmin()}
+function audit(action,module,detail){
+  const a=store.get("audit",[]);
+  a.push({time:new Date().toLocaleString(),user:currentUser?.name||"",role:currentUser?.role||"",action,module,detail});
+  store.set("audit",a);
+}
+function doLogin(){
+  const u=document.getElementById("loginUser").value.trim(), p=document.getElementById("loginPass").value.trim();
+  if(!USERS[u]||USERS[u].pass!==p){
+    document.getElementById("loginMsg").classList.remove("hidden"); document.getElementById("loginMsg").textContent="Wrong username/password"; return;
+  }
+  currentUser={name:u,role:USERS[u].role}; sessionStorage.setItem("erpUser",JSON.stringify(currentUser)); openApp();
+}
+function logout(){sessionStorage.removeItem("erpUser");location.reload()}
+function openApp(){
+  currentUser=JSON.parse(sessionStorage.getItem("erpUser"));
+  if(!currentUser)return;
+  document.getElementById("loginScreen").classList.add("hidden"); document.getElementById("appScreen").classList.remove("hidden");
+  document.getElementById("who").innerHTML=`${currentUser.name} <span class="badge ${isAdmin()?'admin':'user'}">${currentUser.role}</span>`;
+  document.getElementById("auditBtn").style.display=isAdmin()?"block":"none";
+  renderAll();
+}
+if(sessionStorage.getItem("erpUser")) openApp();
+
+function show(id,btn){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  if(btn)btn.classList.add("active");
+  renderAll();
+}
+function n(v){return Number(v||0)}
+function getStyle(st){return store.get("styles",[]).find(x=>x.style===st)||{}}
+function totalCut(r){return sizes.reduce((a,s)=>a+n(r[s]),0)}
+function cutQty(style,colour,size){return store.get("cutting",[]).filter(r=>r.style===style&&r.colour===colour).reduce((a,r)=>a+n(r[size]),0)}
+function stitchIssued(style,colour,size,ignore=-1){return store.get("stitching",[]).reduce((a,r,i)=>i===ignore?a:(r.style===style&&r.colour===colour&&r.size===size?a+n(r.issueQty):a),0)}
+function stitchReceived(style,colour,size){return store.get("stitching",[]).reduce((a,r)=>r.style===style&&r.colour===colour&&r.size===size?a+n(r.receiveQty):a,0)}
+function finishIssued(style,colour,size,ignore=-1){return store.get("finishing",[]).reduce((a,r,i)=>i===ignore?a:(r.style===style&&r.colour===colour&&r.size===size?a+n(r.issueQty):a),0)}
+function finishReceived(style,colour,size){return store.get("finishing",[]).reduce((a,r)=>r.style===style&&r.colour===colour&&r.size===size?a+n(r.receiveQty):a,0)}
+function challan(prefix,i){return prefix+"-"+String(i+1).padStart(4,"0")}
+function status(r){const bal=n(r.issueQty)-n(r.receiveQty);if(r.receiveDate&&n(r.receiveQty)>0&&bal===0)return"Complete";if(n(r.receiveQty)>0)return"Partial Receive";return"Pending"}
+function rowClass(r){const s=status(r);return s==="Complete"?"complete":s==="Partial Receive"?"partial":"pending"}
+function actionBtns(module,i){
+  if(!isAdmin()) return `<span class="small">Admin only</span>`;
+  return `<div class="actions"><button onclick="editRecord('${module}',${i})">Edit</button><button class="danger" onclick="deleteRecord('${module}',${i})">Delete</button></div>`;
+}
+function resetEdit(){editState={module:null,index:null}}
+
+function renderAll(){renderDashboard();renderJobbers();renderStyles();renderCutting();renderStitching();renderFinishing();renderReports();renderAudit();}
+
+/* Dashboard */
+function renderDashboard(){
+  const cutting=store.get("cutting",[]), stitching=store.get("stitching",[]), finishing=store.get("finishing",[]);
+  const totalC=cutting.reduce((a,r)=>a+totalCut(r),0);
+  const stI=stitching.reduce((a,r)=>a+n(r.issueQty),0), stR=stitching.reduce((a,r)=>a+n(r.receiveQty),0);
+  const fnI=finishing.reduce((a,r)=>a+n(r.issueQty),0), fnR=finishing.reduce((a,r)=>a+n(r.receiveQty),0);
+  const stPay=stitching.reduce((a,r)=>a+n(r.receiveQty)*n(r.rate)-n(r.advance)-n(r.deduction),0);
+  const fnPay=finishing.reduce((a,r)=>a+n(r.receiveQty)*n(r.rate)-n(r.advance)-n(r.deduction),0);
+  document.getElementById("dashboard").innerHTML=`
+  <div class="cards">
+    <div class="card"><div class="k">Total Cutting</div><div class="v">${totalC}</div></div>
+    <div class="card"><div class="k">Stitch Issue / Receive</div><div class="v">${stI}/${stR}</div></div>
+    <div class="card"><div class="k">Finish Issue / Receive</div><div class="v">${fnI}/${fnR}</div></div>
+    <div class="card"><div class="k">Total Payable</div><div class="v">₹${stPay+fnPay}</div></div>
+  </div>
+  <div class="panel"><h3>Access Control</h3>
+    <div class="note">Entry सभी user कर सकते हैं. Edit/Delete rights सिर्फ Admin के पास हैं. Admin Audit सिर्फ Admin को दिखता है.</div>
+  </div>`;
+}
+
+/* Jobber */
+function renderJobbers(){
+  document.getElementById("jobbers").innerHTML=`
+  <div class="panel"><h3>Jobber Account Create</h3>
+  ${!isAdmin()?`<div class="note">Jobber create/edit/delete sirf Admin kar sakta hai.</div>`:""}
+  <div class="grid">
+    <div><label>Jobber Name</label><input id="jName" ${!isAdmin()?"disabled":""}></div>
+    <div><label>Mobile</label><input id="jMobile" ${!isAdmin()?"disabled":""}></div>
+    <div><label>Work Type</label><select id="jWork" ${!isAdmin()?"disabled":""}><option>Stitching</option><option>Finishing</option><option>Cutting</option><option>All</option></select></div>
+    <div><label>Active</label><select id="jActive" ${!isAdmin()?"disabled":""}><option>Yes</option><option>No</option></select></div>
+    <div style="grid-column:span 4"><label>Address</label><input id="jAddress" ${!isAdmin()?"disabled":""}></div>
+  </div>
+  <button onclick="saveJobber()" ${!isAdmin()?"disabled":""}>${editState.module==="jobbers"?"Update Jobber":"Save Jobber"}</button>
+  </div>
+  <div class="panel"><h3>Jobber Records</h3>${jobberTable()}</div>`;
+}
+function saveJobber(){
+  if(!isAdmin())return alert("Only Admin can create/edit jobber account.");
+  const r={name:jName.value.trim(),mobile:jMobile.value.trim(),work:jWork.value,address:jAddress.value.trim(),active:jActive.value,createdBy:currentUser.name};
+  if(!r.name)return alert("Jobber name required");
+  const arr=store.get("jobbers",[]);
+  if(editState.module==="jobbers"){arr[editState.index]=r;audit("EDIT","Jobber",r.name)}
+  else{arr.push(r);audit("CREATE","Jobber",r.name)}
+  store.set("jobbers",arr);resetEdit();renderAll();
+}
+function jobberTable(){
+  return `<table><tr><th>Name</th><th>Mobile</th><th>Work</th><th>Address</th><th>Active</th><th>Created By</th><th>Action</th></tr>${store.get("jobbers",[]).map((r,i)=>`<tr><td>${r.name}</td><td>${r.mobile}</td><td>${r.work}</td><td>${r.address}</td><td>${r.active}</td><td>${r.createdBy||""}</td><td>${actionBtns("jobbers",i)}</td></tr>`).join("")}</table>`;
+}
+
+/* Style */
+function renderStyles(){
+  document.getElementById("styles").innerHTML=`
+  <div class="panel"><h3>Style Rate Master</h3>
+  ${!isAdmin()?`<div class="note">Style rate master edit/delete sirf Admin kar sakta hai.</div>`:""}
+  <div class="grid">
+    <div><label>Style No</label><input id="sStyle" ${!isAdmin()?"disabled":""}></div>
+    <div><label>Buyer</label><input id="sBuyer" ${!isAdmin()?"disabled":""}></div>
+    <div><label>Item</label><input id="sItem" ${!isAdmin()?"disabled":""}></div>
+    <div><label>Stitch Rate</label><input id="sStitchRate" type="number" ${!isAdmin()?"disabled":""}></div>
+    <div><label>Finishing Rate</label><input id="sFinishRate" type="number" ${!isAdmin()?"disabled":""}></div>
+  </div>
+  <button onclick="saveStyle()" ${!isAdmin()?"disabled":""}>${editState.module==="styles"?"Update Style":"Save Style"}</button>
+  </div>
+  <div class="panel"><h3>Style Records</h3>${styleTable()}</div>`;
+}
+function saveStyle(){
+  if(!isAdmin())return alert("Only Admin can edit style rate.");
+  const r={style:sStyle.value.trim(),buyer:sBuyer.value.trim(),item:sItem.value.trim(),stitchRate:n(sStitchRate.value),finishRate:n(sFinishRate.value)};
+  if(!r.style)return alert("Style No required");
+  const arr=store.get("styles",[]);
+  if(editState.module==="styles"){arr[editState.index]=r;audit("EDIT","Style",r.style)}
+  else{arr.push(r);audit("CREATE","Style",r.style)}
+  store.set("styles",arr);resetEdit();renderAll();
+}
+function styleTable(){
+  return `<table><tr><th>Style</th><th>Buyer</th><th>Item</th><th>Stitch Rate</th><th>Finishing Rate</th><th>Action</th></tr>${store.get("styles",[]).map((r,i)=>`<tr><td>${r.style}</td><td>${r.buyer}</td><td>${r.item}</td><td>₹${r.stitchRate}</td><td>₹${r.finishRate}</td><td>${actionBtns("styles",i)}</td></tr>`).join("")}</table>`;
+}
+
+/* Cutting */
+function renderCutting(){
+  document.getElementById("cutting").innerHTML=`
+  <div class="panel"><h3>Cutting Entry - Multi Size</h3>
+  <div class="grid">
+    <div><label>Cutting Date</label><input id="cDate" type="date"></div>
+    <div><label>Buyer</label><input id="cBuyer"></div>
+    <div><label>Style No</label><input id="cStyle" onblur="autoCutStyle()"></div>
+    <div><label>Item</label><input id="cItem"></div>
+    <div><label>Colour</label><input id="cColour"></div>
+    ${sizes.map(s=>`<div><label>${s}</label><input id="c${s}" type="number"></div>`).join("")}
+    <div style="grid-column:span 4"><label>Remark</label><input id="cRemark"></div>
+  </div>
+  <button onclick="saveCutting()">${editState.module==="cutting"?"Update Cutting":"Save Cutting"}</button>
+  </div>
+  <div class="panel"><h3>Cutting Records</h3><div style="overflow:auto">${cuttingTable()}</div></div>`;
+}
+function autoCutStyle(){const st=getStyle(cStyle.value.trim());if(st.style){cBuyer.value=st.buyer||"";cItem.value=st.item||""}}
+function saveCutting(){
+  const r={date:cDate.value,buyer:cBuyer.value.trim(),style:cStyle.value.trim(),item:cItem.value.trim(),colour:cColour.value.trim(),remark:cRemark.value.trim(),createdBy:currentUser.name};
+  sizes.forEach(s=>r[s]=n(document.getElementById("c"+s).value));
+  if(!r.style||!r.colour)return alert("Style and Colour required");
+  const arr=store.get("cutting",[]);
+  if(editState.module==="cutting"){
+    if(!isAdmin())return alert("Edit right sirf Admin ko hai.");
+    arr[editState.index]=r;audit("EDIT","Cutting",r.style+" "+r.colour)
+  } else {arr.push(r);audit("CREATE","Cutting",r.style+" "+r.colour)}
+  store.set("cutting",arr);resetEdit();renderAll();
+}
+function cuttingTable(){
+  return `<table><tr><th>Date</th><th>Buyer</th><th>Style</th><th>Item</th><th>Colour</th>${sizes.map(s=>`<th>${s}</th>`).join("")}<th>Total</th><th>Stitch Issued</th><th>Stitch Received</th><th>Balance Issue</th><th>Created By</th><th>Action</th></tr>
+  ${store.get("cutting",[]).map((r,i)=>{
+    const iss=store.get("stitching",[]).filter(x=>x.style===r.style&&x.colour===r.colour).reduce((a,x)=>a+n(x.issueQty),0);
+    const rec=store.get("stitching",[]).filter(x=>x.style===r.style&&x.colour===r.colour).reduce((a,x)=>a+n(x.receiveQty),0);
+    return `<tr><td>${r.date||""}</td><td>${r.buyer}</td><td>${r.style}</td><td>${r.item}</td><td>${r.colour}</td>${sizes.map(s=>`<td>${r[s]||0}</td>`).join("")}<td>${totalCut(r)}</td><td>${iss}</td><td>${rec}</td><td>${totalCut(r)-iss}</td><td>${r.createdBy||""}</td><td>${actionBtns("cutting",i)}</td></tr>`
+  }).join("")}</table>`;
+}
+
+/* Job work entry shared */
+function renderJobWork(module, titleText, prefix, rateField, availableFn, issuedFn){
+  const arr=store.get(module,[]), jobs=store.get("jobbers",[]).filter(j=>j.active==="Yes"&&(j.work==="All"||j.work===(module==="stitching"?"Stitching":"Finishing")));
+  const styleOptions=store.get("styles",[]).map(s=>`<option value="${s.style}">${s.style}</option>`).join("");
+  const jobOptions=jobs.map(j=>`<option value="${j.name}">${j.name}</option>`).join("");
+  return `
+  <div class="panel"><h3>${titleText}</h3>
+  <div class="grid">
+    <div><label>Issue Date</label><input id="${module}IssueDate" type="date"></div>
+    <div><label>Receive Date</label><input id="${module}ReceiveDate" type="date"></div>
+    <div><label>Jobber</label><select id="${module}Jobber"><option></option>${jobOptions}</select></div>
+    <div><label>Mobile</label><input id="${module}Mobile"></div>
+    <div><label>Style No</label><select id="${module}Style" onchange="autoJob('${module}','${rateField}')"><option></option>${styleOptions}</select></div>
+    <div><label>Buyer</label><input id="${module}Buyer"></div>
+    <div><label>Item</label><input id="${module}Item"></div>
+    <div><label>Colour</label><input id="${module}Colour"></div>
+    <div><label>Size</label><select id="${module}Size">${sizes.map(s=>`<option>${s}</option>`).join("")}</select></div>
+    <div><label>Issue Qty</label><input id="${module}IssueQty" type="number"></div>
+    <div><label>Receive Qty</label><input id="${module}ReceiveQty" type="number"></div>
+    <div><label>Rate/Pcs</label><input id="${module}Rate" type="number"></div>
+    <div><label>Advance</label><input id="${module}Advance" type="number"></div>
+    <div><label>Deduction</label><input id="${module}Deduction" type="number"></div>
+    <div style="grid-column:span 2"><label>Remark</label><input id="${module}Remark"></div>
+  </div>
+  <button onclick="saveJobWork('${module}','${prefix}','${rateField}')">${editState.module===module?"Update Entry":"Save Entry"}</button>
+  </div>
+  <div class="panel"><h3>${titleText} Records</h3><div style="overflow:auto">${jobWorkTable(module,prefix,availableFn,issuedFn)}</div></div>`;
+}
+function autoJob(module,rateField){
+  const st=getStyle(document.getElementById(module+"Style").value);
+  document.getElementById(module+"Buyer").value=st.buyer||"";
+  document.getElementById(module+"Item").value=st.item||"";
+  document.getElementById(module+"Rate").value=st[rateField]||"";
+}
+function saveJobWork(module,prefix,rateField){
+  const r={
+    issueDate:document.getElementById(module+"IssueDate").value,
+    receiveDate:document.getElementById(module+"ReceiveDate").value,
+    jobber:document.getElementById(module+"Jobber").value,
+    mobile:document.getElementById(module+"Mobile").value.trim(),
+    style:document.getElementById(module+"Style").value,
+    buyer:document.getElementById(module+"Buyer").value,
+    item:document.getElementById(module+"Item").value,
+    colour:document.getElementById(module+"Colour").value.trim(),
+    size:document.getElementById(module+"Size").value,
+    issueQty:n(document.getElementById(module+"IssueQty").value),
+    receiveQty:n(document.getElementById(module+"ReceiveQty").value),
+    rate:n(document.getElementById(module+"Rate").value),
+    advance:n(document.getElementById(module+"Advance").value),
+    deduction:n(document.getElementById(module+"Deduction").value),
+    remark:document.getElementById(module+"Remark").value.trim(),
+    createdBy:currentUser.name,
+    createdAt:new Date().toLocaleString()
+  };
+  if(!r.jobber||!r.style||!r.colour||!r.size||!r.issueQty)return alert("Jobber, Style, Colour, Size, Issue Qty required.");
+  if(r.receiveQty>r.issueQty)return alert("Receive Qty issue qty se zyada nahi ho sakti.");
+  const arr=store.get(module,[]);
+  const idx=editState.module===module?editState.index:-1;
+  let available=0;
+  if(module==="stitching") available=cutQty(r.style,r.colour,r.size)-stitchIssued(r.style,r.colour,r.size,idx);
+  if(module==="finishing") available=stitchReceived(r.style,r.colour,r.size)-finishIssued(r.style,r.colour,r.size,idx);
+  if(r.issueQty>available && !r.remark){
+    alert((module==="stitching"?"Cutting balance":"Stitching received balance")+" se issue qty zyada hai. Remark compulsory hai.");
+    return;
+  }
+  if(editState.module===module){
+    if(!isAdmin())return alert("Edit right sirf Admin ko hai.");
+    arr[editState.index]=r; audit("EDIT",module,r.style+" "+r.jobber);
+  }else{arr.push(r); audit("CREATE",module,r.style+" "+r.jobber);}
+  store.set(module,arr);resetEdit();renderAll();
+}
+function jobWorkTable(module,prefix,availableFn,issuedFn){
+  return `<table><tr><th>Challan</th><th>Issue Date</th><th>Receive Date</th><th>Jobber</th><th>Style</th><th>Colour</th><th>Size</th><th>Issue</th><th>Receive</th><th>Balance</th><th>Rate</th><th>Amount</th><th>Net Pay</th><th>Status</th><th>Created By</th><th>Action</th></tr>
+  ${store.get(module,[]).map((r,i)=>{
+    const bal=n(r.issueQty)-n(r.receiveQty), amt=n(r.receiveQty)*n(r.rate), net=amt-n(r.advance)-n(r.deduction);
+    return `<tr class="${rowClass(r)}"><td>${challan(prefix,i)}</td><td>${r.issueDate||""}</td><td>${r.receiveDate||""}</td><td>${r.jobber}</td><td>${r.style}</td><td>${r.colour}</td><td>${r.size}</td><td>${r.issueQty}</td><td>${r.receiveQty||0}</td><td>${bal}</td><td>₹${r.rate}</td><td>₹${amt}</td><td>₹${net}</td><td>${status(r)}</td><td>${r.createdBy||""}</td><td>${actionBtns(module,i)}</td></tr>`
+  }).join("")}</table>`;
+}
+function renderStitching(){document.getElementById("stitching").innerHTML=renderJobWork("stitching","Production Job Work - Stitching","ST","stitchRate",cutQty,stitchIssued)}
+function renderFinishing(){document.getElementById("finishing").innerHTML=renderJobWork("finishing","Finishing Issue / Receive","FN","finishRate",stitchReceived,finishIssued)}
+
+/* Reports */
+function renderReports(){
+  const st=store.get("stitching",[]), fn=store.get("finishing",[]);
+  const rows=[...st.map(r=>({...r,type:"Stitching"})),...fn.map(r=>({...r,type:"Finishing"}))];
+  document.getElementById("reports").innerHTML=`
+  <div class="panel"><h3>Report Generate</h3>
+  <div class="grid">
+    <div><label>Report Type</label><select id="rType" onchange="renderReportTable()"><option>All</option><option>Stitching</option><option>Finishing</option><option>Pending Only</option><option>Complete Only</option></select></div>
+    <div><label>Jobber Name</label><input id="rJobber" oninput="renderReportTable()" placeholder="search"></div>
+    <div><label>Style No</label><input id="rStyle" oninput="renderReportTable()" placeholder="search"></div>
+    <div><label>Colour</label><input id="rColour" oninput="renderReportTable()" placeholder="search"></div>
+  </div>
+  <button onclick="print()">Print Report</button>
+  <button class="secondary" onclick="exportBackup()">Export Backup</button>
+  </div>
+  <div class="panel"><h3>Generated Report</h3><div id="reportTable" style="overflow:auto"></div></div>`;
+  window.reportRows=rows; renderReportTable();
+}
+function renderReportTable(){
+  let rows=window.reportRows||[];
+  const type=document.getElementById("rType")?.value||"All";
+  const job=(document.getElementById("rJobber")?.value||"").toLowerCase();
+  const sty=(document.getElementById("rStyle")?.value||"").toLowerCase();
+  const col=(document.getElementById("rColour")?.value||"").toLowerCase();
+  rows=rows.filter(r=>
+    (type==="All"||r.type===type||(type==="Pending Only"&&status(r)!=="Complete")||(type==="Complete Only"&&status(r)==="Complete")) &&
+    (!job||String(r.jobber).toLowerCase().includes(job)) &&
+    (!sty||String(r.style).toLowerCase().includes(sty)) &&
+    (!col||String(r.colour).toLowerCase().includes(col))
+  );
+  const totalIssue=rows.reduce((a,r)=>a+n(r.issueQty),0), totalReceive=rows.reduce((a,r)=>a+n(r.receiveQty),0), pay=rows.reduce((a,r)=>a+n(r.receiveQty)*n(r.rate)-n(r.advance)-n(r.deduction),0);
+  document.getElementById("reportTable").innerHTML=`<div class="note"><b>Total Issue:</b> ${totalIssue} | <b>Total Receive:</b> ${totalReceive} | <b>Final Pay:</b> ₹${pay}</div>
+  <table><tr><th>Type</th><th>Jobber</th><th>Style</th><th>Colour</th><th>Size</th><th>Issue</th><th>Receive</th><th>Balance</th><th>Amount</th><th>Status</th><th>User</th></tr>
+  ${rows.map(r=>`<tr class="${rowClass(r)}"><td>${r.type}</td><td>${r.jobber}</td><td>${r.style}</td><td>${r.colour}</td><td>${r.size}</td><td>${r.issueQty}</td><td>${r.receiveQty||0}</td><td>${n(r.issueQty)-n(r.receiveQty)}</td><td>₹${n(r.receiveQty)*n(r.rate)-n(r.advance)-n(r.deduction)}</td><td>${status(r)}</td><td>${isAdmin()?r.createdBy||"":""}</td></tr>`).join("")}</table>`;
+}
+
+/* Admin Audit */
+function renderAudit(){
+  const auditEl=document.getElementById("auditScreen");
+  if(!isAdmin()){auditEl.innerHTML=`<div class="panel"><h3>Access Denied</h3></div>`;return}
+  auditEl.innerHTML=`<div class="panel admin-only"><h3>Admin Audit</h3>
+  <table><tr><th>Time</th><th>User</th><th>Role</th><th>Action</th><th>Module</th><th>Detail</th></tr>${store.get("audit",[]).map(r=>`<tr><td>${r.time}</td><td>${r.user}</td><td>${r.role}</td><td>${r.action}</td><td>${r.module}</td><td>${r.detail}</td></tr>`).join("")}</table></div>`;
+}
+
+/* Edit/Delete */
+function editRecord(module,i){
+  if(!isAdmin())return alert("Edit right sirf Admin ko hai.");
+  editState={module,index:i};
+  const r=store.get(module,[])[i];
+  if(module==="jobbers"){show("jobbers");setTimeout(()=>{jName.value=r.name;jMobile.value=r.mobile;jWork.value=r.work;jActive.value=r.active;jAddress.value=r.address},0)}
+  if(module==="styles"){show("styles");setTimeout(()=>{sStyle.value=r.style;sBuyer.value=r.buyer;sItem.value=r.item;sStitchRate.value=r.stitchRate;sFinishRate.value=r.finishRate},0)}
+  if(module==="cutting"){show("cutting");setTimeout(()=>{cDate.value=r.date;cBuyer.value=r.buyer;cStyle.value=r.style;cItem.value=r.item;cColour.value=r.colour;sizes.forEach(s=>document.getElementById("c"+s).value=r[s]||0);cRemark.value=r.remark||""},0)}
+  if(module==="stitching"||module==="finishing"){
+    show(module);
+    setTimeout(()=>{document.getElementById(module+"IssueDate").value=r.issueDate||"";document.getElementById(module+"ReceiveDate").value=r.receiveDate||"";document.getElementById(module+"Jobber").value=r.jobber;document.getElementById(module+"Mobile").value=r.mobile||"";document.getElementById(module+"Style").value=r.style;document.getElementById(module+"Buyer").value=r.buyer||"";document.getElementById(module+"Item").value=r.item||"";document.getElementById(module+"Colour").value=r.colour||"";document.getElementById(module+"Size").value=r.size;document.getElementById(module+"IssueQty").value=r.issueQty;document.getElementById(module+"ReceiveQty").value=r.receiveQty||"";document.getElementById(module+"Rate").value=r.rate;document.getElementById(module+"Advance").value=r.advance||"";document.getElementById(module+"Deduction").value=r.deduction||"";document.getElementById(module+"Remark").value=r.remark||""},0)
+  }
+}
+function deleteRecord(module,i){
+  if(!isAdmin())return alert("Delete right sirf Admin ko hai.");
+  if(!confirm("Delete this record?"))return;
+  const arr=store.get(module,[]), detail=JSON.stringify(arr[i]).slice(0,120);
+  arr.splice(i,1); store.set(module,arr); audit("DELETE",module,detail); renderAll();
+}
+function exportBackup(){
+  const data={jobbers:store.get("jobbers",[]),styles:store.get("styles",[]),cutting:store.get("cutting",[]),stitching:store.get("stitching",[]),finishing:store.get("finishing",[]),audit:store.get("audit",[])};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="garment-job-work-erp-backup.json";a.click();
+}
+</script>
+</body>
+</html>
